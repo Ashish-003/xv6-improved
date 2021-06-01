@@ -11,10 +11,7 @@
 SYSCALL(fork)
 SYSCALL(exit)
 SYSCALL(wait)
-SYSCALL(waitx)
-SYSCALL(set_priority)
-SYSCALL(printStatus)
-SYSCALL(getpinfo)
+SYSCALL(waitx) /* c4c76835d1286fa240fe02c4da81f6d4 */
 SYSCALL(pipe)
 SYSCALL(read)
 SYSCALL(write)
@@ -33,3 +30,5 @@ SYSCALL(getpid)
 SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
+SYSCALL(set_priority) /* c4c76835d1286fa240fe02c4da81f6d4 */
+SYSCALL(getpinfo) /* c4c76835d1286fa240fe02c4da81f6d4 */

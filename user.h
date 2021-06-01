@@ -1,16 +1,12 @@
 struct stat;
 struct rtcdate;
-struct proc_stat;
+struct proc_stat; // c4c76835d1286fa240fe02c4da81f6d4
 
 // system calls
 int fork(void);
 int exit(void) __attribute__((noreturn));
 int wait(void);
-// Change
-int waitx(int*, int*);
-int set_priority(int, int);
-void printStatus();
-int getpinfo(struct proc_stat*, int);
+int waitx(int*, int*);  // c4c76835d1286fa240fe02c4da81f6d4
 int pipe(int*);
 int write(int, const void*, int);
 int read(int, void*, int);
@@ -29,11 +25,13 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int set_priority(int); // c4c76835d1286fa240fe02c4da81f6d4
+int getpinfo(int, struct proc_stat*);  // c4c76835d1286fa240fe02c4da81f6d4
 
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);
-void* memmove(void*, const void*, int);
+void *memmove(void*, const void*, int);
 char* strchr(const char*, char c);
 int strcmp(const char*, const char*);
 void printf(int, const char*, ...);

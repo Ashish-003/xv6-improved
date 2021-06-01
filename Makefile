@@ -27,6 +27,8 @@ OBJS = \
 	uart.o\
 	vectors.o\
 	vm.o\
+	queue.o\
+	# c4c76835d1286fa240fe02c4da81f6d4
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf
@@ -71,14 +73,6 @@ QEMU = $(shell if which qemu > /dev/null; \
 	echo "***" 1>&2; exit 1)
 endif
 
-ifndef SCHEDULER
-	SCHEDULER := DEFAULT
-endif
-
-ifndef P
-	P := NOPLOT
-endif
-
 CC = $(TOOLPREFIX)gcc
 AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
@@ -86,8 +80,6 @@ OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
 CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-CFLAGS += -D $(SCHEDULER)
-CFLAGS += -D $(P)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
 LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null | head -n 1)
@@ -98,6 +90,28 @@ CFLAGS += -fno-pie -no-pie
 endif
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]nopie'),)
 CFLAGS += -fno-pie -nopie
+endif
+
+# Set scheduler
+SCHED_MACRO = -D SCHEDULER=SCHED_RR
+
+ifeq ($(SCHEDULER), FCFS)
+SCHED_MACRO = -D SCHEDULER=SCHED_FCFS
+endif
+
+ifeq ($(SCHEDULER), PBS)
+SCHED_MACRO = -D SCHEDULER=SCHED_PBS
+endif
+
+ifeq ($(SCHEDULER), MLFQ)
+SCHED_MACRO = -D SCHEDULER=SCHED_MLFQ
+endif
+
+CFLAGS += $(SCHED_MACRO)
+
+# Set debug
+ifeq ($(DEBUG), TRUE)
+CFLAGS += -D DEBUG
 endif
 
 xv6.img: bootblock kernel
@@ -191,11 +205,10 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
-	_waitxtest\
-	_sctest\
-	_ps\
 	_time\
-	# boo
+	_test_sched\
+	_ps\
+	# c4c76835d1286fa240fe02c4da81f6d4
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -265,10 +278,13 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
-	printf.c umalloc.c waitxtest.c ps.c time.c sctest.c\
+	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
-      # boo
+	time.c\
+	test_sched.c\
+	ps.c\
+	# c4c76835d1286fa240fe02c4da81f6d4
 
 dist:
 	rm -rf dist
